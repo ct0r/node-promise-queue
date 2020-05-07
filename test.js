@@ -12,6 +12,17 @@ const promiseWrap = () => {
   return { promise, resolve, reject };
 };
 
+test("enqueue calls function with given parameters", async (t) => {
+  const arg1 = 1;
+  const arg2 = 2;
+  const fnSpy = sinon.spy(() => Promise.resolve());
+
+  const enqueue = queue({ fn: fnSpy });
+  await enqueue(arg1, arg2);
+
+  t.true(fnSpy.calledOnceWith(arg1, arg2));
+});
+
 test("enqueue calls given function with given parameters", async (t) => {
   const arg1 = 1;
   const arg2 = 2;
@@ -23,7 +34,7 @@ test("enqueue calls given function with given parameters", async (t) => {
   t.true(fnSpy.calledOnceWith(arg1, arg2));
 });
 
-test("enqueue respects given concurrency level", async (t) => {
+test("enqueue respects concurrency level", async (t) => {
   const wraps = [promiseWrap(), promiseWrap(), promiseWrap()];
   const spies = wraps.map((item) => sinon.spy(() => item.promise));
 

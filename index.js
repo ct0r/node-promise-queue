@@ -1,4 +1,4 @@
-function queue({ concurrency = 1 } = {}) {
+function queue({ concurrency = 1, fn } = {}) {
   const fns = [];
   let pendings = 0;
 
@@ -22,11 +22,15 @@ function queue({ concurrency = 1 } = {}) {
       });
   };
 
-  return (fn, ...args) =>
+  const enqueue = (fn, args) =>
     new Promise((resolve, reject) => {
       fns.push({ fn, args, resolve, reject });
       next();
     });
+
+  return fn
+    ? (...args) => enqueue(fn, args)
+    : (fn, ...args) => enqueue(fn, args);
 }
 
 function invoke(fn, args) {
